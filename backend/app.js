@@ -5,8 +5,8 @@ const cookieParser = require("cookie-parser");
 
 //router imports
 
-//starting the database
-require("./config/database");
+//starting the database and then start the CRON job inside it
+require("./config/database-cron");
 
 //creating an express app
 const app = express();
