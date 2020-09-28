@@ -47,4 +47,4 @@ const ArticleSchema = new mongoose.Schema({
 
 ArticleSchema.index({ timestamp: 1, source: 1, headline: 1, author: 1, category: 1 });
 
-module.exports = mongoose.Model("Article", ArticleSchema);
+module.exports = mongoose.model("Article", ArticleSchema);
