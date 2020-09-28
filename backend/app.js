@@ -5,6 +5,9 @@ const cookieParser = require("cookie-parser");
 
 //router imports
 
+//starting the database
+require("./config/database");
+
 //creating an express app
 const app = express();
 
