@@ -24,3 +24,9 @@ yarn-error.log*
 
 #environment variables
 .env
+
+#trial files
+/trial
+
+#static files
+/static

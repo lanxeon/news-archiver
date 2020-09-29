@@ -26,7 +26,7 @@ const scrapeFox = async () => {
 		//go to the fox news US URL
 		await page.goto("https://www.foxnews.com/us", { waitUntil: "domcontentloaded", timeout: 0 });
 
-		//screenshot the main page: "not needed"
+		//screenshot the main page: *not needed*
 		await page.screenshot({ path: "./static/latest-fox.jpg", fullPage: true });
 
 		//page.evaluate lets us access the DOM elements of the page such as
