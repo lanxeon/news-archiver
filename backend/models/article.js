@@ -11,11 +11,9 @@ const ArticleSchema = new mongoose.Schema({
 		type: String,
 		trim: true,
 	},
-	author: {
-		type: String,
+	authors: {
+		type: [{ type: String, trim: true, lowercase: true }],
 		index: true,
-		trim: true,
-		lowercase: true,
 	},
 	category: {
 		type: String,
@@ -28,7 +26,10 @@ const ArticleSchema = new mongoose.Schema({
 		unique: true,
 		required: true,
 	},
-	screenshot: {
+	screenshotDark: {
+		type: String,
+	},
+	screenshotLight: {
 		type: String,
 	},
 	source: {

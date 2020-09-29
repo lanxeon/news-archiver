@@ -122,6 +122,10 @@ const scrapeFox = async () => {
 					.split(" ")
 					.join("-") + ".jpg"; //and adding the jpg extension
 
+			//dark mode and light mode screenshot names
+			let darkName = "dark-" + name;
+			let lightName = "light-" + name;
+
 			//visit the URL for the article, and take a full page screenshot of the page
 			await page.goto(url, {
 				waitUntil: "domcontentloaded",
@@ -129,19 +133,41 @@ const scrapeFox = async () => {
 			});
 
 			//take a screenshot of the full page, and store the Buffer in `screenshotBuffer`, to write to S3 bucket
-			let screenshotBuffer = await page.screenshot({ fullPage: true });
+			let lightScreenshotBuffer = await page.screenshot({ fullPage: true });
+
+			//convert page to dark mode by adding our own custom CSS
+			await page.addStyleTag({
+				content: `* {
+				color: #eeeeee !important;
+				background-color: #222831 !important;
+				border-color: #222831 !important;
+			 }`,
+			});
+
+			//take dark mode screenshot
+			let darkScreenshotBuffer = await page.screenshot({ fullPage: true });
 
 			//setting the parameters for uploading to the bucket, and then uploading screenshot with putObject() using the params
-			const bucketParams = {
+			const bucketParamsLight = {
 				Bucket: bucket,
-				Key: name,
-				Body: screenshotBuffer,
+				Key: lightName,
+				Body: lightScreenshotBuffer,
 				Metadata: { "Content-Type": "image/jpeg" },
 				ContentType: "image/jpeg",
 			};
-			await s3.putObject(bucketParams).promise();
+			const bucketParamsDark = {
+				Bucket: bucket,
+				Key: darkName,
+				Body: darkScreenshotBuffer,
+				Metadata: { "Content-Type": "image/jpeg" },
+				ContentType: "image/jpeg",
+			};
+			await s3.putObject(bucketParamsLight).promise();
+			await s3.putObject(bucketParamsDark).promise();
+
 			//acquire link of newly uploaded screenshot
-			const screenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${name}`;
+			const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lightName}`;
+			const darkScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${darkName}`;
 
 			//use page.evaluate() again in order to scrape the html content of the page and return it to `articleData`
 			const articleData = await page.evaluate(() => {
@@ -160,24 +186,15 @@ const scrapeFox = async () => {
 
 			const { headline, subHeadline, author } = articleData;
 
-			// //final object to store in the database(after uploading to S3 bucket)
-			// let finalArticleData = {
-			// 	timestamp,
-			// 	category,
-			// 	url,
-			// 	screenshotUrl,
-			// 	...articleData,
-			// 	source: "fox",
-			// };
-
 			//create a new article object to store in database
 			let NewFoxArticle = new Article({
 				headline: headline,
 				subHeadline: subHeadline,
-				author: author,
+				authors: [author],
 				category: category,
 				url: url,
-				screenshot: screenshotURL,
+				screenshotLight: lightScreenshotURL,
+				screenshotDark: darkScreenshotURL,
 				source: "fox",
 				timestamp: timestamp,
 			});
