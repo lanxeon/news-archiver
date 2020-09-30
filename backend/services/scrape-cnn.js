@@ -14,14 +14,15 @@ const s3 = new aws.S3();
 const bucket = process.env.S3_BUCKET_NAME;
 const region = process.env.S3_BUCKET_REGION;
 
-//default bucket params. Only need to add body and key.
+//default bucket params. Only need to add `Body` and `Key` properties for each respective object
 const defaultBucketParams = {
 	Bucket: bucket,
 	Metadata: { "Content-Type": "image/jpeg" },
 	ContentType: "image/jpeg",
-	// Key: lightName,
-	// Body: lightScreenshotBuffer,
 };
+
+//regex pattern to escape certain characters in a path
+const regexPattern = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g;
 
 //to autoscroll page in order to load lazy loading images
 async function autoScroll(page) {
@@ -80,14 +81,15 @@ const scrapeCnn = async () => {
 		for (url in data) {
 			//insert everything in a try catch block in order to continue execution for other articles if they are valid
 			try {
-				//checking if article already exists in database. If yesm then ignore
+				//checking if article already exists in database. If yes, then ignore
 				let doc;
 				try {
 					doc = await Article.findOne({ url: url });
-					if (doc) throw new Error("article already exists in database. Skip");
-					console.log("new document. YAY");
+					if (doc) throw new Error("CNN article " + url + " already exists in database. Skip");
+					else console.info("Article " + url + " is a new article");
 				} catch (e) {
-					console.log("DB ERROR");
+					// console.log(e);
+					throw new Error(e);
 				}
 
 				//now, to visit the article link
@@ -113,6 +115,7 @@ const scrapeCnn = async () => {
 				});
 				let darkScreenshotBuffer = await page.screenshot({ fullPage: true });
 
+				//scrape the article's data
 				const scrapedData = await page.evaluate(() => {
 					//scrape headline, author and date
 					let headline = document.querySelector("h1.pg-headline");
@@ -138,20 +141,78 @@ const scrapeCnn = async () => {
 					return { headline, authors, formattedDateString };
 				});
 
+				//extract data returned from page.evaluate
+				const { headline, authors, formattedDateString } = scrapedData;
+
 				//get date in et format and convert it into UTC with datetime
-				let date = moment.tz(scrapedData.formattedDateString, "LLL", "America/New_York").format();
-				let newDate = new Date(date);
+				let date = moment.tz(formattedDateString, "LLL", "America/New_York").format();
+				date = new Date(date);
+
+				/*
+                Upload file to S3 bucket
+                steps:
+                1. acquire default name after parsing URL.
+                2. from the default name, prepend "light" and "dark" in order to create light mode and dark mode names for screenshot
+                   to store in bucket.
+                3. Upload it lol
+                */
+				//step 1
+				//normalize name by escaping the characters in the REGEX, in order to have a file name
+				let name =
+					url
+						.slice("https://us.cnn.com/".length, url.length)
+						.replace(regexPattern, " ")
+						.toLowerCase()
+						.split(" ")
+						.join("-") + ".jpg"; //and adding the jpg extension
+
+				//dark mode and light mode screenshot names
+				let darkName = "dark-" + name;
+				let lightName = "light-" + name;
+
+				//setting the parameters for uploading to the bucket, and then uploading screenshot with putObject() using the params
+				const bucketParamsLight = {
+					...defaultBucketParams,
+					Key: lightName,
+					Body: lightScreenshotBuffer,
+				};
+				const bucketParamsDark = {
+					...defaultBucketParams,
+					Key: darkName,
+					Body: darkScreenshotBuffer,
+				};
+				await s3.putObject(bucketParamsLight).promise();
+				await s3.putObject(bucketParamsDark).promise();
+
+				//acquire link of newly uploaded screenshot
+				const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lightName}`;
+				const darkScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${darkName}`;
+
+				const article = new Article({
+					headline: headline,
+					authors: authors,
+					url: url,
+					screenshotDark: darkScreenshotURL,
+					screenshotLight: lightScreenshotURL,
+					source: "cnn",
+					timestamp: new Date(date),
+				});
+
+				try {
+					let a = await article.save();
+					console.info("Successfully archived CNN article: " + url);
+					console.log(a);
+				} catch (e) {
+					throw new Error(e);
+				}
 			} catch (e) {
-				console.log(e);
+				console.error(e);
 			}
 		}
 	} catch (e) {
-		console.log(e);
+		console.error(e);
 	} finally {
-		console.log("closing browser");
 		await browser.close();
-		console.log("closing mongoose connection");
-		mongoose.connection.close();
 	}
 };
 

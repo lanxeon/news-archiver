@@ -28,9 +28,11 @@ const ArticleSchema = new mongoose.Schema({
 	},
 	screenshotDark: {
 		type: String,
+		trim: true,
 	},
 	screenshotLight: {
 		type: String,
+		trim: true,
 	},
 	source: {
 		type: String,
