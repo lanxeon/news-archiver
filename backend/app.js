@@ -28,6 +28,12 @@ app.use((req, res, next) => {
 	next();
 });
 
+app.get("/", (req, res) => {
+	res.status(200).json({
+		message: "Server is up and running just fine",
+	});
+});
+
 //router implementations
 
 module.exports = app;
