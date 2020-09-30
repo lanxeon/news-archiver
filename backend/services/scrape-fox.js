@@ -1,4 +1,4 @@
-const puppeteer = require("puppeteer");
+const puppeteer = process.env.NODE_ENV !== "production" ? require("puppeteer") : require("puppeteer-core");
 const aws = require("aws-sdk"); //AWS SDK, to use the S3 bucket
 
 //article model
@@ -18,7 +18,14 @@ const region = process.env.S3_BUCKET_REGION;
 
 const scrapeFox = async () => {
 	// open browser
-	const browser = await puppeteer.launch();
+	const browser =
+		process.env.NODE_ENV !== "production"
+			? await puppeteer.launch({ headless: true })
+			: await puppeteer.launch({
+					executablePath: "/usr/bin/google-chrome-stable",
+					headless: true,
+					args: ["--no-sandbox", "--disable-setuid-sandbox"],
+			  });
 	try {
 		//open a new page on the browser
 		const page = await browser.newPage();

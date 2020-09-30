@@ -1,4 +1,4 @@
-const puppeteer = require("puppeteer");
+const puppeteer = process.env.NODE_ENV !== "production" ? require("puppeteer") : require("puppeteer-core");
 const moment = require("moment-timezone");
 const aws = require("aws-sdk"); //AWS SDK, to use the S3 bucket
 const Article = require("../models/article"); //article model
@@ -45,10 +45,15 @@ async function autoScroll(page) {
 }
 
 const scrapeCnn = async () => {
-	//launch browser
-	const browser = await puppeteer.launch({
-		headless: true,
-	});
+	// open browser
+	const browser =
+		process.env.NODE_ENV !== "production"
+			? await puppeteer.launch({ headless: true })
+			: await puppeteer.launch({
+					executablePath: "/usr/bin/google-chrome-stable",
+					headless: true,
+					args: ["--no-sandbox", "--disable-setuid-sandbox"],
+			  });
 
 	try {
 		//open new page and go to URL
