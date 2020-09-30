@@ -28,14 +28,6 @@ yarn-error.log*
 #trial files
 /trial
 
-# #static files
-# /static
 
-.npmrc
 *.zip
 *.config
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
