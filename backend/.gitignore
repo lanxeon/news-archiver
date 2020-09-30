@@ -28,5 +28,5 @@ yarn-error.log*
 #trial files
 /trial
 
-#static files
-/static
+# #static files
+# /static
