@@ -88,7 +88,11 @@ const scrapeFox = async () => {
 					//create a new Date object with the current time and subtract the `minutes` in order to get
 					//the exact time of the publishing of the article
 					let date = new Date();
-					date.setMinutes(0 - minutes);
+					date.setMinutes(date.getMinutes() - minutes);
+
+					// //convert to UTC time
+					// const offsetUTC = date.getTimezoneOffset();
+					// date.setMinutes(date.getMinutes() + offsetUTC);
 
 					//add the URL, the timestamp and category to the final returned array
 					finalResult.push({
@@ -111,6 +115,7 @@ const scrapeFox = async () => {
 			//extract the URL, timestamp and category
 			let url = d.url;
 			let timestamp = JSON.parse(d.timestamp);
+			// let timestamp = JSON.parse(d.timestamp);
 			let category = d.category;
 
 			//normalize name by escaping the characters in the REGEX, in order to have a file name
