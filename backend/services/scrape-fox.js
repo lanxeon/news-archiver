@@ -1,22 +1,43 @@
 const puppeteer = require("puppeteer");
 const aws = require("aws-sdk"); //AWS SDK, to use the S3 bucket
 
-console.log(process.env.NODE_ENV);
-
-//article model
+//article and headliner models
 const Article = require("../models/article");
+const Headliner = require("../models/headliner");
 
 //to configure the credentials for the S3 bucket
 aws.config.update({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: process.env.AWS_SECRET_KEY,
 });
-
 //create s3 object in order to upload to an S3 bucket
 const s3 = new aws.S3();
 //bucket name and region
 const bucket = process.env.S3_BUCKET_NAME;
 const region = process.env.S3_BUCKET_REGION;
+
+//constants
+
+//regex pattern to escape certain characters in a path
+const regexPattern = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g;
+
+const defaultBucketParams = {
+	Bucket: bucket,
+	Metadata: { "Content-Type": "image/jpeg" },
+	ContentType: "image/jpeg",
+};
+
+//to convert a page to dark mode
+const convertPageToDarkMode = async (page) => {
+	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
+	await page.addStyleTag({
+		content: `* {
+            color: #eeeeee !important;
+            background-color: #222831 !important;
+            border-color: #222831 !important;
+        }`,
+	});
+};
 
 const scrapeFox = async () => {
 	// open browser
@@ -31,9 +52,14 @@ const scrapeFox = async () => {
 	try {
 		//open a new page on the browser
 		const page = await browser.newPage();
+		//set width to 800px and height to 1560px (perfect width and height for both fox and CNN)
+		await page.setViewport({
+			height: 1560,
+			width: 800,
+		});
 
 		//go to the fox news US URL
-		await page.goto("https://www.foxnews.com/us", { waitUntil: "domcontentloaded", timeout: 0 });
+		await page.goto("https://www.foxnews.com", { waitUntil: "domcontentloaded", timeout: 0 });
 
 		// //screenshot the main page: *not needed*
 		// await page.screenshot({ path: "./static/latest-fox.jpg", fullPage: true });
@@ -41,99 +67,91 @@ const scrapeFox = async () => {
 		//page.evaluate lets us access the DOM elements of the page such as
 		//accessing the "document" object and performing query selectors, etc, and the return value is stored in "data"
 		const data = await page.evaluate(() => {
-			//scrape the articles from each section
-			let articles = [
-				...document.querySelectorAll("main.main-content > section.collection > div > article"),
-			];
+			//first just scrape the headline
+			let headline = document.querySelector("main.main-content  div.content h2.title a").innerText;
 
-			//visitedUrls object to ensure that we don't add duplicate article URLS
-			visitedUrls = {};
-			//final array to return to `data`
-			let finalResult = [];
+			//scrape the URLS from the spotlight section
+			//make a set instead of array to get rid of duplicate anchor tags
+			let urls = new Set(
+				[...document.querySelectorAll(".collection-spotlight .info a")].map((a) => a.href)
+			);
 
-			//for each article object scraped, scrape category, time and URL (ignore for objects whose time is more than 15 mins)
-			articles.forEach((article) => {
-				let time, category;
-
-				//for sections with `article-list` class, they contain an extra div before we can access the object with time and category
-				if (article.parentElement.classList.contains("article-list")) {
-					time = article.querySelector(".info > header > div.meta > div > span.time");
-
-					category = article.querySelector(".info > header > div.meta > div > span.eyebrow > a");
-				} else {
-					//otherwise no extra div in between, just access direct children
-					time = article.querySelector(".info > header > div.meta > span.time");
-					category = article.querySelector(".info > header > div.meta > span.eyebrow > a");
-				}
-
-				//if there is no time provided, we ignore the article
-				if (!time) return;
-
-				//sanitise the string by converting them into lowercase and getting rid of leading and trailing whitespaces
-				time = time.innerHTML.trim().toLowerCase();
-				category = category ? category.innerHTML.trim().toLowerCase() : null;
-
-				//time is in the form "1 hour ago", "32 mins ago", "5 days ago", etc. So essentially in the form of 3 words that we can split.
-				//in the form of <time, mins/hours/days, ago>. So we need to specifically extract the first 2 parameters
-				time = time.split(" ");
-				//if time is not in mins (since we want new articles published every 15 minutes), or if category is "video", we ignore the article
-				if (time[1] !== "mins" || category === "video") return;
-				let minutes = parseInt(time[0]); // get minutes by parsing to integer
-
-				//only continue for articles that were published 15 minutes ago or earlier
-				if (minutes <= 15) {
-					//scrape the div with class m to get the href attribute of the <a> in order to get the *relative* URL
-					let link = article.querySelector(".m > a").getAttribute("href");
-
-					console.info("Fox article " + link + " is a new article");
-
-					//if we have already come across an article in a section with the URL(sometimes an article is repeated in another section),
-					//we skip the object
-					if (visitedUrls[link]) return;
-					//else add the link to the hashmap(or as simpletons would call it, a js object)
-					visitedUrls[link] = true;
-
-					//if the domain link is not provided, prepend it to the relative URL
-					if (!link.includes("https://foxnews.com")) link = "https://foxnews.com" + link;
-
-					//create a new Date object with the current time and subtract the `minutes` in order to get
-					//the exact time of the publishing of the article
-					let date = new Date();
-					date.setMinutes(date.getMinutes() - minutes);
-
-					// //convert to UTC time
-					// const offsetUTC = date.getTimezoneOffset();
-					// date.setMinutes(date.getMinutes() + offsetUTC);
-
-					//add the URL, the timestamp and category to the final returned array
-					finalResult.push({
-						url: link,
-						timestamp: JSON.stringify(date),
-						category,
-					});
-				}
-			});
-
-			//return the array of URLS(and their timestamp and category) to visit
-			return finalResult;
+			//return the array(or rather set) of URLS as well as the main headline in an object
+			return { headline, urls };
 		});
 
-		//regex pattern to escape certain characters in a path
-		let regexPattern = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g;
+		const { headline, urls } = data;
+
+		//now add main page into the headlines section
+		try {
+			let headlinerExists = await Headliner.countDocuments({ headline: headline });
+
+			//if headline is already archivedm just skip, else, screenshot the page and add it to the database
+			if (headlinerExists > 0)
+				throw new Error(`[Fox] => Headline ${headline} already exists. Skipping...`);
+			else {
+				//screenshot the main page(light)
+				let lsb = await page.screenshot();
+				//convert page to dark mode
+				await convertPageToDarkMode(page);
+				//take dark mode screenshot
+				let dsb = await page.screenshot();
+
+				//generic name
+				let name = headline.toLowerCase().split(" ").join("-") + "-" + Date.now();
+				//light and dark mode names
+				let lname = name + "-light" + ".jpg";
+				let dname = name + "-dark" + ".jpg";
+
+				//upload to bucket
+
+				//light bucket parameters
+				let lightParams = { ...defaultBucketParams, Key: lname, Body: lsb };
+				//dark bucket parameters
+				let darkParams = { ...defaultBucketParams, Key: dname, Body: dsb };
+
+				await s3.putObject(bucketParamsLight).promise();
+				await s3.putObject(bucketParamsDark).promise();
+
+				//acquire link of newly uploaded screenshot
+				const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lname}`;
+				const darkScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${dname}`;
+
+				let newHeadliner = new Headliner({
+					headline: headline,
+					screenshotDark: darkScreenshotURL,
+					screenshotLight: lightScreenshotURL,
+					source: "fox",
+					timestamp: Date.now(),
+				});
+
+				await newHeadliner.save();
+				console.log("[Fox] => Archived new headliner main page");
+			}
+		} catch (err) {
+			console.log(err);
+		}
 
 		//iterate through the array of articles and their URL(and category+timestamp) returned in `data`
-		for (d of data) {
+		for (const url of urls) {
 			try {
+				//ignore if it is a video article
+				if (url.includes("/videos/")) return;
+				//check if URL of article already exists in database. If yes, ignore the article
+				try {
+					let articleExists = await Article.countDocuments({ url: url });
+					if (articleExists > 0) throw new Error(`Article ${url} already exists`);
+				} catch (err) {
+					throw err;
+				}
+
 				//extract the URL, timestamp and category
-				let url = d.url;
-				let timestamp = JSON.parse(d.timestamp);
-				// let timestamp = JSON.parse(d.timestamp);
-				let category = d.category;
+				let timestamp = new Date();
 
 				//normalize name by escaping the characters in the REGEX, in order to have a file name
 				let name =
 					url
-						.slice("https://foxnews.com/us/".length, url.length)
+						.slice("https://foxnews.com/".length, url.length)
 						.replace(regexPattern, " ")
 						.toLowerCase()
 						.split(" ")
@@ -151,34 +169,23 @@ const scrapeFox = async () => {
 
 				//take a screenshot of the full page, and store the Buffer in `screenshotBuffer`, to write to S3 bucket
 				let lightScreenshotBuffer = await page.screenshot({ fullPage: true });
-
-				//convert page to dark mode by adding our own custom CSS
-				await page.addStyleTag({
-					content: `* {
-				color: #eeeeee !important;
-				background-color: #222831 !important;
-				border-color: #222831 !important;
-			 }`,
-				});
-
+				//convert page to dark mode
+				await convertPageToDarkMode(page);
 				//take dark mode screenshot
 				let darkScreenshotBuffer = await page.screenshot({ fullPage: true });
 
 				//setting the parameters for uploading to the bucket, and then uploading screenshot with putObject() using the params
 				const bucketParamsLight = {
-					Bucket: bucket,
+					...defaultBucketParams,
 					Key: lightName,
 					Body: lightScreenshotBuffer,
-					Metadata: { "Content-Type": "image/jpeg" },
-					ContentType: "image/jpeg",
 				};
 				const bucketParamsDark = {
-					Bucket: bucket,
+					...defaultBucketParams,
 					Key: darkName,
 					Body: darkScreenshotBuffer,
-					Metadata: { "Content-Type": "image/jpeg" },
-					ContentType: "image/jpeg",
 				};
+
 				await s3.putObject(bucketParamsLight).promise();
 				await s3.putObject(bucketParamsDark).promise();
 
@@ -191,23 +198,49 @@ const scrapeFox = async () => {
 					//scrape the headline, subheadline and author fields
 					let headline = document.querySelector("h1");
 					let subHeadline = document.querySelector("h2");
-					let author = document.querySelector("div.author-byline > span > span > a");
+					// let author = document.querySelector("div.author-byline > span > span > a");
+					let category = document.querySelector("div.eyebrow a");
+					let time = document.querySelector("div.article-date time");
+					let authors = document.querySelectorAll("div.author-byline span a");
 
 					//sometimes, one or more of the fields are null, so need to ensure that we only access innerHTML if the DOM element exists
 					headline = headline ? headline.innerHTML.trim() : null;
 					subHeadline = subHeadline ? subHeadline.innerHTML.trim() : null;
-					author = author ? author.innerHTML.trim() : null;
+					// author = author ? author.innerHTML.trim() : null;
+					category = category ? category.innerText.trim().toLowerCase() : null;
+					time = time ? time.innerText.trim().toLowerCase() : null;
+					authors = authors ? Array.from(authors).map((a) => a.innerText.trim()) : [];
+					if (authors.length > 0) authors.pop();
 
-					return { headline, subHeadline, author };
+					// //extract time
+					// let timeNum = +time[0];
+					// let timeLength = time[1];
+
+					// if (timeLength == "hours") {
+					// 	timestamp.setDate(timestamp.getHours() - timeNum);
+					// } else if (timeLength == "mins") {
+					// 	timestamp.setDate(timestamp.getMinutes() - timeNum);
+					// }
+
+					return { headline, subHeadline, authors, category, time };
 				});
 
-				const { headline, subHeadline, author } = articleData;
+				const { headline, subHeadline, authors, category, time } = articleData;
+
+				//extract time
+				let timeNum = +time[0];
+				let timeLength = time[1];
+				if (timeLength == "hours") {
+					timestamp.setDate(timestamp.getHours() - timeNum);
+				} else if (timeLength == "mins") {
+					timestamp.setDate(timestamp.getMinutes() - timeNum);
+				}
 
 				//create a new article object to store in database
 				let NewFoxArticle = new Article({
 					headline: headline,
 					subHeadline: subHeadline,
-					authors: [author],
+					authors: authors,
 					category: category,
 					url: url,
 					screenshotLight: lightScreenshotURL,
@@ -235,3 +268,8 @@ const scrapeFox = async () => {
 };
 
 module.exports = scrapeFox;
+
+/*
+let h2 = document.querySelector("main.main-content  div.content h2.title")
+x.parentElement.parentElement.querySelectorAll("li a")
+*/
