@@ -136,7 +136,8 @@ const scrapeFox = async () => {
 		for (const url of urls) {
 			try {
 				//ignore if it is a video article
-				if (url.includes("/videos/")) return;
+				// if (url.includes("/videos/")) return; // this is supposed to be for fox
+				if (url.startsWith("https://video")) return;
 				//check if URL of article already exists in database. If yes, ignore the article
 				try {
 					let articleExists = await Article.countDocuments({ url: url });
