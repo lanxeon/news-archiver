@@ -283,6 +283,13 @@ const scrapeCnn = async () => {
 	try {
 		//open new page and go to URL
 		let page = await browser.newPage();
+		//set width to 800px and height to 1560px (perfect width and height for both fox and CNN)
+		await page.setViewport({
+			height: 1560,
+			width: 800,
+		});
+
+		//go to the cnn url
 		await page.goto("https://us.cnn.com", { waitUntil: "domcontentloaded", timeout: 0 });
 
 		//autoscroll page to load lazy images
@@ -291,24 +298,77 @@ const scrapeCnn = async () => {
 
 		//scrape the list of articles from latest news
 		const data = await page.evaluate(() => {
-			// let h2 = document.querySelector('h2[data-analytics="The latest US stories_list-xs_"]');
-			// let lis = h2.parentElement.querySelectorAll("li");
+			//scrape headline
+			let headline = document.querySelector("h2").innerText;
 
-			let returnedURLS = {};
+			headline = headline ? headline.innerText.trim() : null;
 
-			lis.forEach((li) => {
-				let a = li.querySelector("a");
-				let url = a ? a.href : null;
-				if (url.includes("/videos/us") || url.includes("/us/gallery")) return; // ignore if it is a video or gallery article
+			// scrape all the urls of articles
+			let urls = new Set(
+				[...document.querySelectorAll("section.zn-center-fluid a")].map((a) =>
+					a.href.includes("/videos/") || a.href.includes("/gallery/") ? null : a.href
+				)
+			);
+			urls.delete(null); //get rid of the null article(returned in map() when it is a video/gallery article)
 
-				returnedURLS[url] = true;
-			});
-
-			return returnedURLS;
+			return { headline, urls };
 		});
 
+		//extract the headline and the urls set
+		let { headline, urls } = data;
+
+		//first, to save the headline
+		try {
+			let headlinerExists = await Headliner.countDocuments({ source: "cnn", headline: headline });
+
+			//if headline is already archivedm just skip, else, screenshot the page and add it to the database
+			if (headline && headlinerExists > 0)
+				throw new Error(`[Fox] => Headline ${headline} already exists. Skipping...`);
+			else {
+				//screenshot the main page(light)
+				let lsb = await page.screenshot();
+				//convert page to dark mode
+				await convertPageToDarkMode(page);
+				//take dark mode screenshot
+				let dsb = await page.screenshot();
+
+				//generic name
+				let name = headline.toLowerCase().split(" ").join("-") + "-" + Date.now();
+				//light and dark mode names
+				let lname = name + "-light" + ".jpg";
+				let dname = name + "-dark" + ".jpg";
+
+				//upload to bucket
+
+				//light bucket parameters
+				let lightParams = { ...defaultBucketParams, Key: lname, Body: lsb };
+				//dark bucket parameters
+				let darkParams = { ...defaultBucketParams, Key: dname, Body: dsb };
+
+				await s3.putObject(bucketParamsLight).promise();
+				await s3.putObject(bucketParamsDark).promise();
+
+				//acquire link of newly uploaded screenshot
+				const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lname}`;
+				const darkScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${dname}`;
+
+				let newHeadliner = new Headliner({
+					headline: headline,
+					screenshotDark: darkScreenshotURL,
+					screenshotLight: lightScreenshotURL,
+					source: "cnn",
+					timestamp: Date.now(),
+				});
+
+				await newHeadliner.save();
+				console.log("[CNN] => Archived new headliner main page");
+			}
+		} catch (e) {
+			console.log(e);
+		}
+
 		//iterate through each URL key in data
-		for (url in data) {
+		for (let url of urls) {
 			//insert everything in a try catch block in order to continue execution for other articles if they are valid
 			try {
 				//checking if article already exists in database. If yes, then ignore
@@ -316,7 +376,7 @@ const scrapeCnn = async () => {
 				try {
 					doc = await Article.findOne({ url: url });
 					if (doc) throw new Error("CNN article " + url + " already exists in database. Skip");
-					else console.info("Article " + url + " is a new article");
+					else console.log("Article " + url + " is a new article");
 				} catch (e) {
 					// console.log(e);
 					throw new Error(e);
@@ -334,21 +394,15 @@ const scrapeCnn = async () => {
 
 				//take light mode screnshot
 				let lightScreenshotBuffer = await page.screenshot({ fullPage: true });
-
-				//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
-				await page.addStyleTag({
-					content: `* {
-                        color: #eeeeee !important;
-                        background-color: #222831 !important;
-                        border-color: #222831 !important;
-                    }`,
-				});
+				//convert page to dark mode
+				convertPageToDarkMode(page);
+				//take dark mode screenshot
 				let darkScreenshotBuffer = await page.screenshot({ fullPage: true });
 
 				//scrape the article's data
 				const scrapedData = await page.evaluate(() => {
 					//scrape headline, author and date
-					let headline = document.querySelector("h1.pg-headline");
+					let headline = document.querySelector("h1");
 					let authorsRawString = document.querySelector("div.metadata p.metadata__byline span");
 					let dateString = document.querySelector("div.metadata p.update-time").innerText;
 
