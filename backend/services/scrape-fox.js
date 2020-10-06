@@ -27,7 +27,7 @@ const defaultBucketParams = {
 	ContentType: "image/jpeg",
 };
 
-//to convert a page to dark mode
+//function to convert a page to dark mode
 const convertPageToDarkMode = async (page) => {
 	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
 	await page.addStyleTag({
@@ -77,10 +77,11 @@ const scrapeFox = async () => {
 			);
 
 			//return the array(or rather set) of URLS as well as the main headline in an object
-			return { headline, urls };
+			return { headline, urls: [...urls] };
 		});
 
 		const { headline, urls } = data;
+		console.log(urls);
 
 		//now add main page into the headlines section
 		try {
@@ -88,7 +89,7 @@ const scrapeFox = async () => {
 
 			//if headline is already archivedm just skip, else, screenshot the page and add it to the database
 			if (headlinerExists > 0)
-				throw new Error(`[Fox] => Headline ${headline} already exists. Skipping...`);
+				throw new Error(`[Fox] => Headline "${headline}" already exists. Skipping...`);
 			else {
 				//screenshot the main page(light)
 				let lsb = await page.screenshot();
@@ -110,8 +111,8 @@ const scrapeFox = async () => {
 				//dark bucket parameters
 				let darkParams = { ...defaultBucketParams, Key: dname, Body: dsb };
 
-				await s3.putObject(bucketParamsLight).promise();
-				await s3.putObject(bucketParamsDark).promise();
+				await s3.putObject(lightParams).promise();
+				await s3.putObject(darkParams).promise();
 
 				//acquire link of newly uploaded screenshot
 				const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lname}`;
@@ -133,7 +134,7 @@ const scrapeFox = async () => {
 		}
 
 		//iterate through the array of articles and their URL(and category+timestamp) returned in `data`
-		for (const url of urls) {
+		for (let url of urls) {
 			try {
 				//ignore if it is a video article
 				// if (url.includes("/videos/")) return; // this is supposed to be for fox
@@ -247,7 +248,7 @@ const scrapeFox = async () => {
 					screenshotLight: lightScreenshotURL,
 					screenshotDark: darkScreenshotURL,
 					source: "fox",
-					timestamp: timestamp,
+					timestamp: timestamp.toISOString(),
 				});
 				try {
 					let a = await NewFoxArticle.save();

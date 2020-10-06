@@ -226,7 +226,10 @@
 const puppeteer = process.env.NODE_ENV !== "production" ? require("puppeteer") : require("puppeteer-core");
 const moment = require("moment-timezone");
 const aws = require("aws-sdk"); //AWS SDK, to use the S3 bucket
+
+//models
 const Article = require("../models/article"); //article model
+const Headliner = require("../models/headliner");
 
 //to configure the credentials for the S3 bucket
 aws.config.update({
@@ -248,6 +251,18 @@ const defaultBucketParams = {
 
 //regex pattern to escape certain characters in a path
 const regexPattern = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g;
+
+//function to convert a page to dark mode
+const convertPageToDarkMode = async (page) => {
+	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
+	await page.addStyleTag({
+		content: `* {
+            color: #eeeeee !important;
+            background-color: #222831 !important;
+            border-color: #222831 !important;
+        }`,
+	});
+};
 
 //to autoscroll page in order to load lazy loading images
 async function autoScroll(page) {
@@ -299,7 +314,7 @@ const scrapeCnn = async () => {
 		//scrape the list of articles from latest news
 		const data = await page.evaluate(() => {
 			//scrape headline
-			let headline = document.querySelector("h2").innerText;
+			let headline = document.querySelector("h2");
 
 			headline = headline ? headline.innerText.trim() : null;
 
@@ -311,11 +326,12 @@ const scrapeCnn = async () => {
 			);
 			urls.delete(null); //get rid of the null article(returned in map() when it is a video/gallery article)
 
-			return { headline, urls };
+			return { headline, urls: [...urls] };
 		});
 
 		//extract the headline and the urls set
-		let { headline, urls } = data;
+		const { headline, urls } = data;
+		console.log(urls);
 
 		//first, to save the headline
 		try {
@@ -323,7 +339,7 @@ const scrapeCnn = async () => {
 
 			//if headline is already archivedm just skip, else, screenshot the page and add it to the database
 			if (headline && headlinerExists > 0)
-				throw new Error(`[Fox] => Headline ${headline} already exists. Skipping...`);
+				throw new Error(`[CNN] => Headline "${headline}" already exists. Skipping...`);
 			else {
 				//screenshot the main page(light)
 				let lsb = await page.screenshot();
@@ -345,8 +361,8 @@ const scrapeCnn = async () => {
 				//dark bucket parameters
 				let darkParams = { ...defaultBucketParams, Key: dname, Body: dsb };
 
-				await s3.putObject(bucketParamsLight).promise();
-				await s3.putObject(bucketParamsDark).promise();
+				await s3.putObject(lightParams).promise();
+				await s3.putObject(darkParams).promise();
 
 				//acquire link of newly uploaded screenshot
 				const lightScreenshotURL = `https://${bucket}.s3.${region}.amazonaws.com/${lname}`;
@@ -406,8 +422,8 @@ const scrapeCnn = async () => {
 					let authorsRawString = document.querySelector("div.metadata p.metadata__byline span");
 					let dateString = document.querySelector("div.metadata p.update-time").innerText;
 
-					headline = headline ? headline.innerText : null;
-					let authors = authorsRawString ? authorsRawString.innerText : null;
+					headline = headline ? headline.innerText.trim() : null;
+					let authors = authorsRawString ? authorsRawString.innerText.trim() : null;
 					authors = authors
 						.slice(3, authors.length - 5)
 						.replace(/,?\s*and\s*|,\s*/g, "_")
