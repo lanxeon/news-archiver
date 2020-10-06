@@ -27,17 +27,17 @@ const defaultBucketParams = {
 	ContentType: "image/jpeg",
 };
 
-//function to convert a page to dark mode
-const convertPageToDarkMode = async (page) => {
-	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
-	await page.addStyleTag({
-		content: `* {
-            color: #eeeeee !important;
-            background-color: #222831 !important;
-            border-color: #222831 !important;
-        }`,
-	});
-};
+// //function to convert a page to dark mode
+// const convertPageToDarkMode = async (page) => {
+// 	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
+// 	await page.addStyleTag({
+// 		content: `* {
+//             color: #eeeeee !important;
+//             background-color: #222831 !important;
+//             border-color: #222831 !important;
+//         }`,
+// 	});
+// };
 
 //function to convert a page to dark mode
 const convertPageToDarkMode = async (page) => {

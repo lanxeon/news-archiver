@@ -195,33 +195,46 @@ const scrapeCnn = async () => {
 					//scrape headline, author and date
 					let headline = document.querySelector("h1");
 					let authorsRawString = document.querySelector("div.metadata p.metadata__byline span");
-					let dateString = document.querySelector("div.metadata p.update-time").innerText;
+					let dateString = document.querySelector("div.metadata p.update-time");
 
-					headline = headline ? headline.innerText.trim() : null;
-					let authors = authorsRawString ? authorsRawString.innerText.trim() : null;
-					authors = authors
-						.slice(3, authors.length - 5)
-						.replace(/,?\s*and\s*|,\s*/g, "_")
-						.split("_");
+					try {
+						headline = headline ? headline.innerText.trim() : null;
+						let authors = authorsRawString ? authorsRawString.innerText.trim() : [];
+						authors =
+							authors.length > 1
+								? authors
+										.slice(3, authors.length - 5)
+										.replace(/,?\s*and\s*|,\s*/g, "_")
+										.split("_")
+								: null;
 
-					dateString = dateString
-						.replace(/,\s*|\s+/g, "_")
-						.split("_")
-						.slice(1);
+						dateString = dateString
+							? dateString
+									.replace(/,\s*|\s+/g, "_")
+									.split("_")
+									.slice(1)
+							: null;
+					} catch (err) {
+						console.log(e);
+					}
 
-					let [time, ampm, zone, day, month, mday, year] = dateString;
-
-					const formattedDateString = `${month} ${mday} ${year} ${time} ${ampm}`;
-
+					let formattedDateString = false;
+					if (dateString) {
+						let [time, ampm, zone, day, month, mday, year] = dateString;
+						formattedDateString = `${month} ${mday} ${year} ${time} ${ampm}`;
+					}
 					return { headline, authors, formattedDateString };
 				});
 
 				//extract data returned from page.evaluate
 				const { headline, authors, formattedDateString } = scrapedData;
 
-				//get date in et format and convert it into UTC with datetime
-				let date = moment.tz(formattedDateString, "LLL", "America/New_York").format();
-				date = new Date(date);
+				let date;
+				if (formattedDateString) {
+					//get date in et format and convert it into UTC with datetime
+					date = moment.tz(formattedDateString, "LLL", "America/New_York").format();
+					date = new Date(date);
+				} else date = Date.now();
 
 				/*
                 Upload file to S3 bucket
