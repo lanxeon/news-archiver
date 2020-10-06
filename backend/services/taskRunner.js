@@ -18,7 +18,7 @@ const job = new CronJob(
 	true, // start - whether to start the job moment constructor initialization done
 	"America/Los_Angeles", // timeZone
 	undefined, // to skip the "context" parameter and keep it as default
-	false // runOnInit - to run immediately instead of first waiting for 15 minutes (UPDATE: Not needed)
+	true // runOnInit - to run immediately instead of first waiting for 15 minutes (UPDATE: Not needed)
 );
 //to start the job(not necessary here because we kept the "start" parameter as true)
 job.start();

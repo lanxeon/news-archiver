@@ -196,26 +196,28 @@ const scrapeCnn = async () => {
 					let headline = document.querySelector("h1");
 					let authorsRawString = document.querySelector("div.metadata p.metadata__byline span");
 					let dateString = document.querySelector("div.metadata p.update-time");
+					let authors;
 
 					try {
 						headline = headline ? headline.innerText.trim() : null;
-						let authors = authorsRawString ? authorsRawString.innerText.trim() : [];
+						authors = authorsRawString ? authorsRawString.innerText.trim() : "";
 						authors =
 							authors.length > 1
 								? authors
 										.slice(3, authors.length - 5)
 										.replace(/,?\s*and\s*|,\s*/g, "_")
 										.split("_")
-								: null;
+								: [];
 
 						dateString = dateString
-							? dateString
+							? dateString.innerText
+									.trim()
 									.replace(/,\s*|\s+/g, "_")
 									.split("_")
 									.slice(1)
 							: null;
 					} catch (err) {
-						console.log(e);
+						console.log(err);
 					}
 
 					let formattedDateString = false;
