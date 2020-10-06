@@ -4,7 +4,7 @@ const ArticleSchema = new mongoose.Schema({
 	headline: {
 		type: String,
 		required: true,
-		unique: true,
+		index: true,
 		trim: true,
 	},
 	subHeadline: {

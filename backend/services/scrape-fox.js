@@ -84,7 +84,7 @@ const scrapeFox = async () => {
 
 		//now add main page into the headlines section
 		try {
-			let headlinerExists = await Headliner.countDocuments({ headline: headline });
+			let headlinerExists = await Headliner.countDocuments({ source: "fox", headline: headline });
 
 			//if headline is already archivedm just skip, else, screenshot the page and add it to the database
 			if (headlinerExists > 0)
