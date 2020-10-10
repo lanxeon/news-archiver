@@ -27,18 +27,6 @@ const defaultBucketParams = {
 	ContentType: "image/jpeg",
 };
 
-// //function to convert a page to dark mode
-// const convertPageToDarkMode = async (page) => {
-// 	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
-// 	await page.addStyleTag({
-// 		content: `* {
-//             color: #eeeeee !important;
-//             background-color: #222831 !important;
-//             border-color: #222831 !important;
-//         }`,
-// 	});
-// };
-
 //function to convert a page to dark mode
 const convertPageToDarkMode = async (page) => {
 	//insert CSS stylings to convert site into dark mode, and then take dark mode screenshot
@@ -54,25 +42,22 @@ const convertPageToDarkMode = async (page) => {
 	});
 };
 
-// *:not(.kicker-text)
-//         { color: #eeeeee !important;
-//             background-color: #222831 !important;
-//             border-color: #222831 !important;
-//         }
-//     .kicker {
-//             background-color: rgba(0,51,102,.8) !important;
-//        }
-
 const scrapeFox = async () => {
 	// open browser
-	const browser =
-		process.env.NODE_ENV == "development"
-			? await puppeteer.launch({ headless: true })
-			: await puppeteer.launch({
-					executablePath: "/usr/bin/google-chrome-stable",
-					headless: true,
-					args: ["--no-sandbox", "--disable-setuid-sandbox"],
-			  });
+	// const browser =
+	// 	process.env.NODE_ENV == "development"
+	// 		? await puppeteer.launch({ headless: true })
+	// 		: await puppeteer.launch({
+	// 				executablePath: "/usr/bin/google-chrome-stable",
+	// 				headless: true,
+	// 				args: ["--no-sandbox", "--disable-setuid-sandbox"],
+	// 		  });
+	const browser = await puppeteer.launch({
+		headless: true,
+		headless: true,
+		args: ["--no-sandbox", "--disable-setuid-sandbox"],
+	});
+
 	try {
 		//open a new page on the browser
 		const page = await browser.newPage();

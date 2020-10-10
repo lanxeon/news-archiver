@@ -61,14 +61,20 @@ async function autoScroll(page) {
 
 const scrapeCnn = async () => {
 	// open browser
-	const browser =
-		process.env.NODE_ENV !== "production"
-			? await puppeteer.launch({ headless: true })
-			: await puppeteer.launch({
-					executablePath: "/usr/bin/google-chrome-stable",
-					headless: true,
-					args: ["--no-sandbox", "--disable-setuid-sandbox"],
-			  });
+	// const browser =
+	// 	process.env.NODE_ENV !== "production"
+	// 		? await puppeteer.launch({ headless: true })
+	// 		: await puppeteer.launch({
+	// 				executablePath: "/usr/bin/google-chrome-stable",
+	// 				headless: true,
+	// 				args: ["--no-sandbox", "--disable-setuid-sandbox"],
+	// 		  });
+
+	const browser = await puppeteer.launch({
+		headless: true,
+		headless: true,
+		args: ["--no-sandbox", "--disable-setuid-sandbox"],
+	});
 
 	try {
 		//open new page and go to URL
