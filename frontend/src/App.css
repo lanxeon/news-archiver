@@ -1,21 +1,31 @@
 /* variables for dark mode(default) */
 :root {
 	--bg-body: #222831;
-	--bg-main: #222831;
 	--bg-content: #393e46;
 	--text-color: #eeeeee;
 	--primary: #00acc1;
-	--secondary: ##8e24aa;
+	--secondary: #8e24aa;
+
+	--bg-header: var(--bg-content);
+	--header-height: 64px;
 }
 
 /* variables for light mode */
-[dataTheme="light"] {
+/* [dataTheme="light"] {
 	--bg-body: white;
 	--bg-main: #fff;
 	--bg-content: #eee;
 	--text-color: #08090a;
 	--primary: #00acc1;
 	--secondary: ##8e24aa;
+} */
+
+.light {
+	--bg-body: white;
+	--bg-content: #eee;
+	--text-color: #08090a;
+
+	--bg-header: var(--primary);
 }
 
 * {

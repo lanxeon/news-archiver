@@ -11,11 +11,9 @@ class Header extends Component {
 				<div className={classes.logo}>LOGO</div>
 				<div className={classes.spacer}></div>
 				<nav className={classes.nav}>
-					<ul>
-						{this.props.items.map((item) => (
-							<NavButton>{item}</NavButton>
-						))}
-					</ul>
+					{this.props.items.map((item) => (
+						<NavButton>{item}</NavButton>
+					))}
 				</nav>
 			</header>
 		);

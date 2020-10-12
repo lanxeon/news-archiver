@@ -3,10 +3,11 @@
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 70px;
+	height: var(--header-height);
 	padding: 0 1.2rem;
 
-	background-color: var(--bg-content);
+	background-color: var(--bg-header);
+	color: #fff;
 
 	display: flex;
 	flex-direction: row;
@@ -17,19 +18,12 @@
 	box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
 }
 
-/* .nav {
-	display: flex;
-	flex-direction: row;
-	height: 100%;
-	justify-content: center;
-	align-items: center;
-} */
-
 .nav {
 	display: flex;
 	flex-direction: row;
 	height: 100%;
 	justify-content: center;
+	align-items: center;
 }
 
 .logo {
