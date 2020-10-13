@@ -11,17 +11,8 @@
 }
 
 /* variables for light mode */
-/* [dataTheme="light"] {
-	--bg-body: white;
-	--bg-main: #fff;
-	--bg-content: #eee;
-	--text-color: #08090a;
-	--primary: #00acc1;
-	--secondary: ##8e24aa;
-} */
-
 .light {
-	--bg-body: white;
+	--bg-body: #fff;
 	--bg-content: #eee;
 	--text-color: #08090a;
 
@@ -41,4 +32,5 @@
 	height: 100vh;
 	background-color: var(--bg-body);
 	color: var(--text-color);
+	overflow: auto;
 }
