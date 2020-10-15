@@ -7,8 +7,12 @@ export const Footer = () => {
 		<div className={classes.footerWrapper}>
 			<footer>
 				<p>
-					Made with ❤️ by{" "}
-					<a href="https://github.com/lanxeon" target="_blank">
+					Made with{" "}
+					<span role="img" aria-label="heart">
+						❤️
+					</span>{" "}
+					by{" "}
+					<a rel="noopener noreferrer" href="https://github.com/lanxeon" target="_blank">
 						lanxion
 					</a>
 				</p>

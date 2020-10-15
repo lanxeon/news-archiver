@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import classes from "./Header.module.css";
 
-import NavButton from "../UI/NavButton/NavButton";
+// import NavButton from "../UI/NavButton/NavButton";
 import { IconButton, Tooltip } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness4RoundedIcon from "@material-ui/icons/Brightness4Rounded";
@@ -31,12 +31,13 @@ class Header extends Component {
 					<h3>News Archiver</h3>
 				</div>
 				<div className={classes.spacer}></div>
+				<div className={classes.spacer}></div>
 				<ThemeToggler {...this.props} />
-				<nav className={classes.nav}>
+				{/* <nav className={classes.nav}>
 					{this.props.items.map((item) => (
 						<NavButton>{item}</NavButton>
 					))}
-				</nav>
+				</nav> */}
 			</header>
 		);
 	}

@@ -34,3 +34,10 @@
 	color: var(--text-color);
 	overflow: auto;
 }
+
+@media (max-width: 768px) {
+	:root {
+		font-size: 0.8em;
+		--header-height: 50px;
+	}
+}

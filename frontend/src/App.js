@@ -14,7 +14,6 @@ class App extends Component {
 	//toggle the theme from dark to light and vice versa
 	toggleThemeHandler = () => {
 		let currentTheme = this.state.mode;
-
 		this.setState({
 			mode: currentTheme === "light" ? "dark" : "light",
 		});

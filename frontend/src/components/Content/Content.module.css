@@ -2,4 +2,5 @@
 	margin: 0 auto;
 	height: 100%;
 	overflow: auto;
+	padding-top: calc(var(--header-height) + 1rem);
 }
