@@ -5,6 +5,8 @@
 	flex-wrap: wrap;
 	width: 100%;
 	padding: 0 1rem;
+
+	box-sizing: border-box;
 }
 
 .info h1 {
@@ -14,4 +16,5 @@
 
 .info p {
 	font-size: 1.3rem;
+	text-align: justify;
 }
