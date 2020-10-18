@@ -54,7 +54,6 @@ const scrapeFox = async () => {
 	// 		  });
 	const browser = await puppeteer.launch({
 		headless: true,
-		headless: true,
 		args: ["--no-sandbox", "--disable-setuid-sandbox"],
 	});
 
@@ -147,7 +146,7 @@ const scrapeFox = async () => {
 			try {
 				//ignore if it is a video article
 				// if (url.includes("/videos/")) return; // this is supposed to be for fox
-				if (url.startsWith("https://video")) return;
+				if (url.startsWith("https://video")) continue;
 				//check if URL of article already exists in database. If yes, ignore the article
 				try {
 					let articleExists = await Article.countDocuments({ url: url });

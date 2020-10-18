@@ -72,7 +72,6 @@ const scrapeCnn = async () => {
 
 	const browser = await puppeteer.launch({
 		headless: true,
-		headless: true,
 		args: ["--no-sandbox", "--disable-setuid-sandbox"],
 	});
 
@@ -105,6 +104,13 @@ const scrapeCnn = async () => {
 					a.href.includes("/videos/") || a.href.includes("/gallery/") ? null : a.href
 				)
 			);
+			if (urls.size === 0) {
+				urls = new Set(
+					[...document.querySelectorAll("section.zn-left-fluid a")].map((a) =>
+						a.href.includes("/videos/") || a.href.includes("/gallery/") ? null : a.href
+					)
+				);
+			}
 			urls.delete(null); //get rid of the null article(returned in map() when it is a video/gallery article)
 
 			return { headline, urls: [...urls] };
