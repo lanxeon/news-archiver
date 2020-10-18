@@ -14,7 +14,7 @@ export default class Home extends Component {
 		return (
 			<div className={classes.homeWrapper}>
 				<Introduction />
-				{/* <Carousel /> */}
+				<Carousel />
 			</div>
 		);
 	}
