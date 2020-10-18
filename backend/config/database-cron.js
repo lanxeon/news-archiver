@@ -18,8 +18,10 @@ const connectToMongoose = async () => {
 		console.log("mongoDB connection: FAIL");
 		console.log("reason: " + e);
 	}
-	//start the CRON job after connecting to the database
-	connectionisSuccessful ? require("../services/taskRunner") : console.log("CANNOT RUN CRON JOB");
+	//start the CRON job after connecting to the database (if in production server)
+	if (process.env.NODE_ENV !== "development") {
+		connectionisSuccessful ? require("../services/taskRunner") : console.log("CANNOT RUN CRON JOB");
+	}
 };
 
 connectToMongoose();
