@@ -1,6 +1,14 @@
 import React from "react";
 
-import { CarouselProvider, Slider, Slide, ButtonBack, ButtonNext, Image } from "pure-react-carousel";
+import {
+	CarouselProvider,
+	Slider,
+	Slide,
+	ButtonBack,
+	ButtonNext,
+	Image,
+	DotGroup,
+} from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 
 import classes from "./Carousel.module.css";
@@ -18,6 +26,7 @@ const Carousel = (props) => {
 						/>
 					</Slide>
 				</Slider>
+				<DotGroup className={classes.dots} />
 				<div className={classes.ButtonsWrapper}>
 					<ButtonBack className={classes.btn}>←</ButtonBack>
 					<ButtonNext className={classes.btn}>→</ButtonNext>
