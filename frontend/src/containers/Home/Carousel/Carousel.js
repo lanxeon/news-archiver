@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 import {
 	CarouselProvider,
@@ -14,17 +15,34 @@ import "pure-react-carousel/dist/react-carousel.es.css";
 import classes from "./Carousel.module.css";
 
 const Carousel = (props) => {
+	const [headlines, setHeadlines] = useState([]);
+
+	useEffect(() => {
+		async function getHeadlines() {
+			let thing = await axios.get("http://localhost:3001/carousel-headlines");
+			setHeadlines(thing.data.payload);
+		}
+		getHeadlines();
+	}, []);
+
 	return (
 		<div className={classes.Carousel}>
-			<CarouselProvider naturalSlideWidth={100} naturalSlideHeight={100} totalSlides={1} isPlaying>
+			<CarouselProvider
+				naturalSlideWidth={100}
+				naturalSlideHeight={100}
+				totalSlides={headlines.length}
+				isPlaying
+			>
 				<Slider>
-					<Slide index={0}>
-						<Image
-							src="https://archivedscreenshots.s3.ap-south-1.amazonaws.com/trump-continues-bizarre-appeals-to-suburban-women-1603004424531-dark.jpg"
-							alt="lol"
-							className={classes.carouselImg}
-						/>
-					</Slide>
+					{headlines.map((headline, index) => (
+						<Slide index={index} key={headline.headline}>
+							<Image
+								src={headline.screenshotLight}
+								alt={headline.headline}
+								className={classes.carouselImg}
+							/>
+						</Slide>
+					))}
 				</Slider>
 				<DotGroup className={classes.dots} />
 				<div className={classes.ButtonsWrapper}>
