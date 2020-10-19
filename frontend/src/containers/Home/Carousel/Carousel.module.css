@@ -5,8 +5,14 @@
 	border-color: var(--bg-content);
 	border-width: 8px 8px 0 8px;
 	background-color: var(--bg-content);
+	/* min-height: 300px; */
 
 	margin: 1.5rem auto;
+}
+
+.Carousel h2 {
+	text-align: center;
+	margin: 0.6rem 0;
 }
 
 @media (min-width: 768px) {
@@ -17,7 +23,7 @@
 
 .carouselImg {
 	width: 100%;
-	object-fit: cover;
+	object-fit: none;
 	height: auto;
 }
 
