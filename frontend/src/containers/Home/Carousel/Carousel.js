@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 //Carousel library items, and its CSS
@@ -24,8 +24,12 @@ import ChevronLefttIcon from "@material-ui/icons/ChevronLeft";
 //loader component
 import Loader from "../../../components/UI/Loader/Loader";
 
+//context, used for dark/light theme picture toggling in this case
+import GlobalContext from "../../../Context/GlobalContext";
+
 const Carousel = () => {
 	const [headlines, setHeadlines] = useState([]);
+	const { theme } = useContext(GlobalContext);
 
 	useEffect(() => {
 		async function getHeadlines() {
@@ -52,7 +56,11 @@ const Carousel = () => {
 							{headlines.map((headline, index) => (
 								<Slide index={index} key={headline.headline}>
 									<Image
-										src={headline.screenshotLight}
+										src={
+											theme === "light"
+												? headline.screenshotLight
+												: headline.screenshotDark
+										}
 										alt={headline.headline}
 										className={classes.carouselImg}
 									/>
