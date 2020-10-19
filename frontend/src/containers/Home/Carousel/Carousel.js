@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import classes from "./Carousel.module.css";
 import axios from "axios";
 
-//Carousel library items
+//Carousel library items, and its CSS
 import {
 	CarouselProvider,
 	Slider,
@@ -14,13 +13,16 @@ import {
 } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 
+// *******IMPORTANT********
+//import our own custom CSS file AFTER importing the carousel library's css
+import classes from "./Carousel.module.css";
+
 //left and right arrow icons for carousel
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ChevronLefttIcon from "@material-ui/icons/ChevronLeft";
 
-// //backdrop and loader component
-// import Backdrop from "@material-ui/core/Backdrop";
-// import CircularProgress from "@material-ui/core/CircularProgress";
+//loader component
+import Loader from "../../../components/UI/Loader/Loader";
 
 const Carousel = () => {
 	const [headlines, setHeadlines] = useState([]);
@@ -35,35 +37,40 @@ const Carousel = () => {
 
 	return (
 		<div className={classes.Carousel}>
-			{}
-			<h2>Latest archived headlines</h2>
-			<CarouselProvider
-				naturalSlideWidth={100}
-				naturalSlideHeight={100}
-				totalSlides={headlines.length}
-				isPlaying
-			>
-				<Slider>
-					{headlines.map((headline, index) => (
-						<Slide index={index} key={headline.headline}>
-							<Image
-								src={headline.screenshotLight}
-								alt={headline.headline}
-								className={classes.carouselImg}
-							/>
-						</Slide>
-					))}
-				</Slider>
-				<DotGroup className={classes.dots} />
-				<div className={classes.ButtonsWrapper}>
-					<ButtonBack className={classes.btn}>
-						<ChevronLefttIcon />
-					</ButtonBack>
-					<ButtonNext className={classes.btn}>
-						<ChevronRightIcon />
-					</ButtonNext>
-				</div>
-			</CarouselProvider>
+			{headlines.length === 0 ? (
+				<Loader />
+			) : (
+				<>
+					<h2>Latest archived headlines</h2>
+					<CarouselProvider
+						naturalSlideWidth={100}
+						naturalSlideHeight={100}
+						totalSlides={headlines.length}
+						isPlaying
+					>
+						<Slider>
+							{headlines.map((headline, index) => (
+								<Slide index={index} key={headline.headline}>
+									<Image
+										src={headline.screenshotLight}
+										alt={headline.headline}
+										className={classes.carouselImg}
+									/>
+								</Slide>
+							))}
+						</Slider>
+						<DotGroup className={classes.dots} />
+						<div className={classes.ButtonsWrapper}>
+							<ButtonBack className={classes.btn}>
+								<ChevronLefttIcon />
+							</ButtonBack>
+							<ButtonNext className={classes.btn}>
+								<ChevronRightIcon />
+							</ButtonNext>
+						</div>
+					</CarouselProvider>
+				</>
+			)}
 		</div>
 	);
 };

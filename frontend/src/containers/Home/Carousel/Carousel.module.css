@@ -3,8 +3,10 @@
 	width: 100%;
 	border-style: solid;
 	border-color: var(--bg-content);
-	border-width: 8px 8px 0 8px;
+	border-width: 8px 8px 8px 8px;
 	background-color: var(--bg-content);
+
+	min-height: 360px;
 	/* min-height: 300px; */
 
 	margin: 1.5rem auto;
@@ -12,18 +14,25 @@
 
 .Carousel h2 {
 	text-align: center;
-	margin: 0.6rem 0;
+	margin-bottom: 8px;
 }
 
 @media (min-width: 768px) {
 	.Carousel {
 		width: 768px;
+		min-height: 768px;
+	}
+}
+
+@media (min-width: 500px) {
+	.Carousel {
+		min-height: 500px;
 	}
 }
 
 .carouselImg {
 	width: 100%;
-	object-fit: none;
+	object-fit: cover;
 	height: auto;
 }
 
