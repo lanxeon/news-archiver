@@ -48,13 +48,19 @@
 	background-color: var(--primary);
 	outline: none;
 	border: none;
-	border-radius: 20%;
-	width: 2.8rem;
-	height: 2.8rem;
-	font-size: 1.4rem;
+	border-radius: 50%;
+	width: 3rem;
+	height: 3rem;
 	font-weight: bolder;
-	padding: 4px;
 	margin: 0 1rem;
+	position: absolute;
+	top: 50%;
+
+	transform: translateY(-50%);
+}
+
+.right {
+	right: 0;
 }
 
 .btn:disabled {
@@ -63,7 +69,8 @@
 
 .dots {
 	position: absolute;
-	top: 80%;
+	/* top: 80%; */
+	bottom: 8%;
 	left: 50%;
 	transform: translateX(-50%);
 	background-color: rgba(0, 0, 0, 0.315);

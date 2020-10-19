@@ -68,14 +68,14 @@ const Carousel = () => {
 							))}
 						</Slider>
 						<DotGroup className={classes.dots} />
-						<div className={classes.ButtonsWrapper}>
-							<ButtonBack className={classes.btn}>
-								<ChevronLefttIcon />
-							</ButtonBack>
-							<ButtonNext className={classes.btn}>
-								<ChevronRightIcon />
-							</ButtonNext>
-						</div>
+						{/* <div className={classes.ButtonsWrapper}> */}
+						<ButtonBack className={classes.btn}>
+							<ChevronLefttIcon />
+						</ButtonBack>
+						<ButtonNext className={[classes.btn, classes.right].join(" ")}>
+							<ChevronRightIcon />
+						</ButtonNext>
+						{/* </div> */}
 					</CarouselProvider>
 				</>
 			)}
