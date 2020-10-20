@@ -1,0 +1,23 @@
+.btn {
+	color: #fff;
+	background-color: var(--primary);
+	outline: none;
+	border: none;
+	border-radius: 50%;
+	width: 3rem;
+	height: 3rem;
+	font-weight: bolder;
+	margin: 0 1rem;
+	position: absolute;
+	top: 50%;
+
+	transform: translateY(-50%);
+}
+
+.right {
+	right: 0;
+}
+
+.btn:disabled {
+	background-color: grey;
+}

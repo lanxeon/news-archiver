@@ -2,25 +2,17 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 //Carousel library items, and its CSS
-import {
-	CarouselProvider,
-	Slider,
-	Slide,
-	ButtonBack,
-	ButtonNext,
-	Image,
-	DotGroup,
-} from "pure-react-carousel";
+import { CarouselProvider, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 
 // *******IMPORTANT********
 //import our own custom CSS file AFTER importing the carousel library's css
 import classes from "./Carousel.module.css";
 
-//left and right arrow icons for carousel
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ChevronLefttIcon from "@material-ui/icons/ChevronLeft";
-
+//import the various carousel components such as slider, carousel and buttons
+import SliderButtons from "./SliderButtons/SliderButtons";
+import CarouselDots from "./CarouselDots/CarouselDots";
+import Slides from "./Slides/Slides";
 //loader component
 import Loader from "../../../components/UI/Loader/Loader";
 
@@ -41,43 +33,23 @@ const Carousel = () => {
 
 	return (
 		<div className={classes.Carousel}>
+			<h2>Latest archived headlines</h2>
+
 			{headlines.length === 0 ? (
 				<Loader />
 			) : (
-				<>
-					<h2>Latest archived headlines</h2>
-					<CarouselProvider
-						naturalSlideWidth={100}
-						naturalSlideHeight={100}
-						totalSlides={headlines.length}
-						isPlaying
-					>
-						<Slider>
-							{headlines.map((headline, index) => (
-								<Slide index={index} key={headline.headline}>
-									<Image
-										src={
-											theme === "light"
-												? headline.screenshotLight
-												: headline.screenshotDark
-										}
-										alt={headline.headline}
-										className={classes.carouselImg}
-									/>
-								</Slide>
-							))}
-						</Slider>
-						<DotGroup className={classes.dots} />
-						{/* <div className={classes.ButtonsWrapper}> */}
-						<ButtonBack className={classes.btn}>
-							<ChevronLefttIcon />
-						</ButtonBack>
-						<ButtonNext className={[classes.btn, classes.right].join(" ")}>
-							<ChevronRightIcon />
-						</ButtonNext>
-						{/* </div> */}
-					</CarouselProvider>
-				</>
+				<CarouselProvider
+					naturalSlideWidth={100}
+					naturalSlideHeight={100}
+					totalSlides={headlines.length}
+					isPlaying
+				>
+					<Slider>
+						<Slides headlines={headlines} theme={theme} />
+					</Slider>
+					<CarouselDots />
+					<SliderButtons />
+				</CarouselProvider>
 			)}
 		</div>
 	);
