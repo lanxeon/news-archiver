@@ -31,7 +31,7 @@ yarn-error.log*
 # #static files
 # /static
 
-.npmrc
+# .npmrc
 *.zip
 *.config
 

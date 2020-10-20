@@ -44,7 +44,7 @@ const Carousel = () => {
 					totalSlides={headlines.length}
 					isPlaying
 				>
-					<Slider>
+					<Slider className={classes.Slider}>
 						<Slides headlines={headlines} theme={theme} />
 					</Slider>
 					<CarouselDots />

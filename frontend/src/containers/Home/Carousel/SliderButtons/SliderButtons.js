@@ -11,10 +11,10 @@ const SliderButtons = () => {
 	return (
 		<>
 			<ButtonBack className={classes.btn}>
-				<ChevronLefttIcon />
+				<ChevronLefttIcon fontSize="inherit" />
 			</ButtonBack>
 			<ButtonNext className={[classes.btn, classes.right].join(" ")}>
-				<ChevronRightIcon />
+				<ChevronRightIcon fontSize="inherit" />
 			</ButtonNext>
 		</>
 	);
