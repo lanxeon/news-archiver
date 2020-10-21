@@ -10,9 +10,9 @@ const job = new CronJob(
 	async () => {
 		console.info("running cron job as scheduled => " + new Date().toUTCString());
 
-		// await Promise.all([scrapeFoxNews(), scrapeCnnNews()]);
-		await scrapeFoxNews();
-		await scrapeCnnNews();
+		await Promise.all([scrapeFoxNews(), scrapeCnnNews()]);
+		// await scrapeFoxNews();
+		// await scrapeCnnNews();
 
 		console.info("ending cron job at => " + new Date().toUTCString());
 	},

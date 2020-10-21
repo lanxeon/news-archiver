@@ -167,7 +167,7 @@ const scrapeCnn = async () => {
 				console.log("[CNN] => Archived new headliner main page");
 			}
 		} catch (e) {
-			console.log(e);
+			console.log(e.message);
 		}
 
 		//iterate through each URL key in data
@@ -229,7 +229,7 @@ const scrapeCnn = async () => {
 									.slice(1)
 							: null;
 					} catch (err) {
-						console.log(err);
+						console.log(err.message);
 					}
 
 					let formattedDateString = false;
@@ -308,11 +308,11 @@ const scrapeCnn = async () => {
 					throw new Error(e);
 				}
 			} catch (e) {
-				console.error(e);
+				console.error(e.message);
 			}
 		}
 	} catch (e) {
-		console.error(e);
+		console.error(e.message);
 	} finally {
 		await browser.close();
 	}

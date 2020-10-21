@@ -138,7 +138,7 @@ const scrapeFox = async () => {
 				console.log("[Fox] => Archived new headliner main page");
 			}
 		} catch (err) {
-			console.log(err);
+			console.log(err.message);
 		}
 
 		//iterate through the array of articles and their URL(and category+timestamp) returned in `data`
@@ -266,11 +266,11 @@ const scrapeFox = async () => {
 					throw new Error(e);
 				}
 			} catch (e) {
-				console.log(e);
+				console.log(e.message);
 			}
 		}
 	} catch (err) {
-		console.log(err);
+		console.log(err.message);
 	} finally {
 		//close the browser at the end in order to not have zombie spawns
 		await browser.close();
