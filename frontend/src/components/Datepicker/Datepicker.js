@@ -10,6 +10,7 @@ import { createMuiTheme } from "@material-ui/core";
 import { cyan, pink, lightBlue } from "@material-ui/core/colors";
 
 import GlobalContext from "../../Context/GlobalContext";
+import { useHistory } from "react-router-dom";
 
 //custom theme for datepicker. Overridden in component using
 const overrides = {
@@ -50,12 +51,19 @@ const Datepicker = (props) => {
 	const [materialTheme, setMaterialTheme] = useState(createMuiTheme({ overrides }));
 
 	const globalContext = useContext(GlobalContext);
+	let history = useHistory();
 
 	useEffect(() => {
 		overrides["MuiPickersToolbar"]["toolbar"]["backgroundColor"] =
 			globalContext.theme === "dark" ? "#393e46" : cyan["600"];
 		setMaterialTheme(createMuiTheme({ overrides }));
 	}, [globalContext]);
+
+	const redirectToDate = (date) => {
+		console.log(date.toString());
+		changeDate(date);
+		history.push(`${date}`);
+	};
 
 	return (
 		<MuiPickersUtilsProvider utils={MomentUtils}>
@@ -69,7 +77,7 @@ const Datepicker = (props) => {
 						variant={props.variant}
 						openTo="date"
 						value={date}
-						onChange={changeDate}
+						onChange={redirectToDate}
 						disableFuture
 					/>
 				</ThemeProvider>

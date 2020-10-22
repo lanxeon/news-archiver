@@ -8,7 +8,7 @@ export default function Content() {
 	return (
 		<main className={classes.content}>
 			<Switch>
-				<Route path="/" component={Home} />
+				<Route path="/" exact component={Home} />
 			</Switch>
 		</main>
 	);
