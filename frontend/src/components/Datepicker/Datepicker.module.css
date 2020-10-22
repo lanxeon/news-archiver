@@ -1,0 +1,11 @@
+h3 {
+	text-align: center;
+	margin: 1rem auto;
+}
+
+.DatePickerWrapperStatic {
+	border: none;
+	border-radius: 5px;
+	overflow: hidden;
+	box-shadow: 0 4px 10px #333;
+}
