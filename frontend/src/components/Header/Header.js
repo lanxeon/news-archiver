@@ -1,10 +1,11 @@
 import React from "react";
 import classes from "./Header.module.css";
 
+import Datepicker from "../Datepicker/Datepicker";
 import ThemeToggler from "./ThemeToggler/ThemeToggler";
 import Logo from "./Logo/Logo";
+import Spacer from "../UI/Spacer/Spacer";
 
-import Datepicker from "../Datepicker/Datepicker";
 import { NavLink } from "react-router-dom";
 
 const Header = (props) => {
@@ -13,9 +14,9 @@ const Header = (props) => {
 			<NavLink to="/">
 				<Logo />
 			</NavLink>
-			<div className={classes.spacer}></div>
-			<Datepicker variant="dialog" className="DatePickerWrapperStatic" />
-			<div className={classes.spacer}></div>
+			<Spacer />
+			<Datepicker variant="dialog" />
+			<Spacer />
 			<ThemeToggler {...props} />
 		</header>
 	);

@@ -68,8 +68,9 @@ const Datepicker = (props) => {
 
 	const redirectToDate = (date) => {
 		globalContext.setRouteAndDate(date);
+		let routeDate = moment(date).format("DD-MM-YYYY");
 		console.log(moment(date).format("DD-MM-YYYY"));
-		history.push(`${date}`);
+		history.push(`${routeDate}`);
 	};
 
 	return (
@@ -79,7 +80,7 @@ const Datepicker = (props) => {
 			<div className={classes[props.className]}>
 				<ThemeProvider theme={materialTheme}>
 					<DatePicker
-						autoOk
+						// autoOk
 						orientation="portrait"
 						variant={props.variant}
 						openTo="date"
