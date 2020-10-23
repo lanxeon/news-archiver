@@ -1,0 +1,21 @@
+.toggler {
+	color: #fff;
+	outline: none;
+	background: transparent;
+	width: 48px;
+	height: 48px;
+	border: none;
+	cursor: pointer;
+	border-radius: 50%;
+}
+
+.toggler:hover {
+	background-color: gray;
+}
+
+.toggler svg {
+	height: 24px;
+	width: 24px;
+	color: #fff;
+	fill: #fff;
+}

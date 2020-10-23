@@ -10,6 +10,8 @@ import GlobalContext from "./Context/GlobalContext";
 class App extends Component {
 	state = {
 		mode: "dark",
+		inRoute: false,
+		date: new Date(),
 		headerItems: ["item1", "item2", "item3"],
 	};
 
@@ -36,15 +38,23 @@ class App extends Component {
 		});
 	};
 
+	dateAndRouteChangeHandler = (date, inRoute = true) => {
+		console.log(new Date(date));
+		this.setState({
+			inRoute: inRoute,
+			date: date,
+		});
+	};
+
 	render() {
 		return (
 			<div className={`root ${this.state.mode}`}>
 				<GlobalContext.Provider
 					value={{
 						theme: this.state.mode,
-						inRoute: false,
-						date: Date.now(),
-						setRouteAndDate: () => null,
+						inRoute: this.state.inRoute,
+						date: this.state.date,
+						setRouteAndDate: this.dateAndRouteChangeHandler,
 					}}
 				>
 					<Header

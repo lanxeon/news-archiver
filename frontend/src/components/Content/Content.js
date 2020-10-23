@@ -9,6 +9,7 @@ export default function Content() {
 		<main className={classes.content}>
 			<Switch>
 				<Route path="/" exact component={Home} />
+				<Route path="/:date" exact render={() => <h1>Hello</h1>} />
 			</Switch>
 		</main>
 	);
