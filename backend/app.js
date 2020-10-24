@@ -88,10 +88,10 @@ app.get("/content/:dateString", async (req, res) => {
 		//headlines and articles to be returned
 		const headliners = await Headliner.find({
 			timestamp: { $gt: date1.toISOString(), $lt: date2.toISOString() },
-		});
+		}).sort("timestamp");
 		const articles = await Article.find({
 			timestamp: { $gt: date1.toISOString(), $lt: date2.toISOString() },
-		});
+		}).sort("timestamp");
 
 		return res.status(200).json({ headliners, articles });
 	} catch (err) {
