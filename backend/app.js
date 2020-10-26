@@ -86,14 +86,46 @@ app.get("/content/:dateString", async (req, res) => {
 		console.log({ date1, date2 });
 
 		//headlines and articles to be returned
-		const headliners = await Headliner.find({
+		const headlines = await Headliner.find({
 			timestamp: { $gt: date1.toISOString(), $lt: date2.toISOString() },
-		}).sort("timestamp");
+		})
+			.sort("timestamp")
+			.lean();
 		const articles = await Article.find({
 			timestamp: { $gt: date1.toISOString(), $lt: date2.toISOString() },
-		}).sort("timestamp");
+		})
+			.sort("timestamp")
+			.lean();
 
-		return res.status(200).json({ headliners, articles });
+		let headlinesAndArticles = [];
+		let articlesLength = articles.length,
+			headlinesLength = headlines.length;
+
+		for (let i = 0, j = 0; i < articlesLength || j < headlinesLength; i++, j++) {
+			if (i >= articlesLength) {
+				headlines[j].type = "headlines";
+				headlinesAndArticles.push(headlines[j]);
+			} else if (j >= headlinesLength) {
+				articles[i].type = "article";
+				headlinesAndArticles.push(articles[i]);
+			} else {
+				let art = articles[i],
+					hdl = headlines[j];
+
+				art.type = "article";
+				hdl.type = "headline";
+
+				if (new Date(art.timestamp) < new Date(hdl.timestamp)) {
+					headlinesAndArticles.push(art);
+					headlinesAndArticles.push(hdl);
+				} else {
+					headlinesAndArticles.push(hdl);
+					headlinesAndArticles.push(art);
+				}
+			}
+		}
+
+		return res.status(200).json({ headlines, articles, headlinesAndArticles });
 	} catch (err) {
 		console.log(err);
 		return res.status(500).json({
