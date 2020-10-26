@@ -1,19 +1,11 @@
 import React, { Component } from "react";
-import classes from "./DateContent.module.css";
+// import classes from "./DateContent.module.css";
 import GlobalContext from "../../Context/GlobalContext";
 
+import { Timeline } from "@material-ui/lab";
 import Axios from "axios";
 
-import {
-	Timeline,
-	TimelineItem,
-	TimelineSeparator,
-	TimelineConnector,
-	TimelineContent,
-	TimelineDot,
-	TimelineOppositeContent,
-} from "@material-ui/lab";
-import Typography from "@material-ui/core/Typography";
+import TimelineItems from "./TimelineItems/TimelineItems";
 
 class DateContent extends Component {
 	static contextType = GlobalContext;
@@ -23,15 +15,16 @@ class DateContent extends Component {
 		headlines: [],
 		headlinesAndArticles: [],
 		mode: "headlinesAndArticles",
+		source: "both",
 	};
 
 	componentDidMount = async () => {
 		let data = await Axios.get(`http://localhost:3001/content/${this.props.match.params.date}`);
-		console.log(data.data.headlinesAndArticles);
+		console.log(data.data);
 
 		this.setState({
 			articles: data.data.articles,
-			headlines: data.data.headliners,
+			headlines: data.data.headlines,
 			headlinesAndArticles: data.data.headlinesAndArticles,
 		});
 
@@ -55,106 +48,20 @@ class DateContent extends Component {
 		});
 	};
 
-	// shouldComponentUpdate = (prevProps) => {
-	// 	console.log(prevProps.match.params.date);
-	// 	console.log(this.props.match.params.date);
-	// 	return prevProps.match.params.date !== this.props.match.params.date;
-	// };
-
 	render() {
+		//get the type of items to show (articles, headlines or both)
+		const mode = this.state.mode;
+		const items =
+			this.state.source === "both"
+				? [...this.state[mode]]
+				: [...this.state[mode]].filter((item) => item.source !== this.state.source);
+
 		return (
 			<Timeline align="alternate">
-				{typeof this.state.articles !== "undefined" &&
-					this.state.headlinesAndArticles.map((article) => (
-						<TimelineItem key={article._id} className={classes.TimelineItem}>
-							<TimelineOppositeContent>
-								<Typography variant="body2" color="inherit">
-									{new Date(article.timestamp).toLocaleTimeString()}
-								</Typography>
-							</TimelineOppositeContent>
-							<TimelineSeparator>
-								<TimelineDot
-									variant={article.type === "article" ? "outlined" : "default"}
-									color={article.source === "fox" ? "secondary" : "primary"}
-								/>
-								<TimelineConnector />
-							</TimelineSeparator>
-							<TimelineContent>{article.headline}</TimelineContent>
-						</TimelineItem>
-					))}
+				<TimelineItems items={items} />
 			</Timeline>
 		);
 	}
 }
 
 export default DateContent;
-
-// import React, { useEffect, useState } from "react";
-// import Timeline from "@material-ui/lab/Timeline";
-// import TimelineItem from "@material-ui/lab/TimelineItem";
-// import TimelineSeparator from "@material-ui/lab/TimelineSeparator";
-// import TimelineConnector from "@material-ui/lab/TimelineConnector";
-// import TimelineContent from "@material-ui/lab/TimelineContent";
-// import TimelineDot from "@material-ui/lab/TimelineDot";
-// import TimelineOppositeContent from "@material-ui/lab/TimelineOppositeContent";
-// import Typography from "@material-ui/core/Typography";
-
-// import { makeStyles } from "@material-ui/core/styles";
-// import Axios from "axios";
-
-// import GlobalContext from "../../Context/GlobalContext";
-
-// const useStyles = makeStyles({
-// 	root: {
-// 		height: 120,
-// 	},
-// 	alignAlternate: {
-// 		height: 120,
-// 		minHeight: 120,
-// 	},
-// });
-
-// const DateContent = (props) => {
-// 	const [articles, setArticles] = useState([]);
-// 	const [headlines, setHeadlines] = useState([]);
-// 	const [headlinesAndArticles, setHeadlinesAndArticles] = useState([]);
-
-// 	useEffect(() => {
-// 		const f = async () => {
-// 			let data = await Axios.get(`http://localhost:3001/content/${props.match.params.date}`);
-// 			console.log(data.data.headlinesAndArticles);
-// 			setArticles(data.data.articles);
-// 			setHeadlines(data.data.headlines);
-// 			setHeadlinesAndArticles(data.data.headlinesAndArticles);
-// 		};
-
-// 		f();
-// 	}, [props.match.params.date]);
-
-// 	const classes = useStyles();
-
-// 	return (
-// 		<Timeline align="alternate">
-// 			{typeof articles !== "undefined" &&
-// 				articles.map((article) => (
-// 					<TimelineItem key={article._id} classes={classes.alignAlternate}>
-// 						<TimelineOppositeContent>
-// 							<Typography variant="body2" color="inherit">
-// 								{new Date(article.timestamp).toLocaleTimeString()}
-// 							</Typography>
-// 						</TimelineOppositeContent>
-// 						<TimelineSeparator>
-// 							<TimelineDot
-// 								variant="outlined"
-// 								color={article.source === "fox" ? "secondary" : "primary"}
-// 							/>
-// 							<TimelineConnector />
-// 						</TimelineSeparator>
-// 						<TimelineContent>{article.headline}</TimelineContent>
-// 					</TimelineItem>
-// 				))}
-// 		</Timeline>
-// 	);
-// };
-
-// export default DateContent;
