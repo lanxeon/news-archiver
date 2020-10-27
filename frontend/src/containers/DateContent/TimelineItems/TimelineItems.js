@@ -25,7 +25,7 @@ function TimelineItems(props) {
 						<TimelineSeparator>
 							<TimelineDot
 								variant={item.type === "article" ? "outlined" : "default"}
-								color={item.source === "fox" ? "secondary" : "primary"}
+								color={item.source === "fox" ? "primary" : "secondary"}
 							/>
 							<TimelineConnector />
 						</TimelineSeparator>

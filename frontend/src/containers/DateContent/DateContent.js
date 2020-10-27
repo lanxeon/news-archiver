@@ -5,6 +5,7 @@ import GlobalContext from "../../Context/GlobalContext";
 import { Timeline } from "@material-ui/lab";
 import Axios from "axios";
 
+import ModeCheckbox from "./ModeCheckbox/ModeCheckbox";
 import TimelineItems from "./TimelineItems/TimelineItems";
 
 class DateContent extends Component {
@@ -14,8 +15,18 @@ class DateContent extends Component {
 		articles: [],
 		headlines: [],
 		headlinesAndArticles: [],
-		mode: "headlinesAndArticles",
-		source: "both",
+
+		// mode: "headlinesAndArticles",
+		// source: "both",
+
+		sources: {
+			fox: true,
+			cnn: true,
+		},
+		modes: {
+			headlines: true,
+			articles: true,
+		},
 	};
 
 	componentDidMount = async () => {
@@ -48,18 +59,46 @@ class DateContent extends Component {
 		});
 	};
 
+	handleSourceChange = (event) => {
+		this.setState({ sources: { ...this.state.sources, [event.target.name]: event.target.checked } });
+	};
+
+	handleModeChange = (event) => {
+		this.setState({ modes: { ...this.state.modes, [event.target.name]: event.target.checked } });
+	};
+
 	render() {
-		//get the type of items to show (articles, headlines or both)
-		const mode = this.state.mode;
+		//get the type of items to show (articles, headlines or both), as well as the items given the mode
+		const mode =
+			this.state.modes["headlines"] && this.state.modes["articles"]
+				? "headlinesAndArticles"
+				: this.state.modes["articles"]
+				? "articles"
+				: "headlines";
+		const source =
+			this.state.sources["fox"] && this.state.sources["cnn"]
+				? "both"
+				: this.state.modes["fox"]
+				? "fox"
+				: "cnn";
+
 		const items =
-			this.state.source === "both"
+			source === "both"
 				? [...this.state[mode]]
-				: [...this.state[mode]].filter((item) => item.source !== this.state.source);
+				: [...this.state[mode]].filter((item) => item.source !== source);
 
 		return (
-			<Timeline align="alternate">
-				<TimelineItems items={items} />
-			</Timeline>
+			<>
+				<ModeCheckbox
+					sources={this.state.sources}
+					modes={this.state.modes}
+					handleModeChange={(e) => this.handleModeChange(e)}
+					handleSourceChange={(e) => this.handleSourceChange(e)}
+				/>
+				<Timeline align="alternate">
+					<TimelineItems items={items} />
+				</Timeline>
+			</>
 		);
 	}
 }
