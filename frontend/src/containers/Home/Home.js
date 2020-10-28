@@ -12,6 +12,12 @@ import globalContext from "../../Context/GlobalContext";
 export default class Home extends Component {
 	static contextType = globalContext;
 
+	componentDidMount() {
+		if (this.context.inRoute) {
+			this.context.setRouteAndDate(new Date(), false);
+		}
+	}
+
 	render() {
 		return (
 			<div className={classes.homeWrapper}>
