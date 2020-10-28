@@ -17,7 +17,7 @@ function TimelineItems(props) {
 			{typeof props.items !== "undefined" &&
 				props.items.map((item) => (
 					<TimelineItem key={item._id} className={classes.TimelineItem}>
-						<TimelineOppositeContent>
+						<TimelineOppositeContent className={classes.TimelineOppositeContent}>
 							<Typography variant="body2" color="inherit">
 								{new Date(item.timestamp).toLocaleTimeString()}
 							</Typography>

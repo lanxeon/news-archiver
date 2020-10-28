@@ -29,11 +29,14 @@ class DateContent extends Component {
 	componentDidMount = async () => {
 		let data = await Axios.get(`http://localhost:3001/content/${this.props.match.params.date}`);
 
-		this.setState({
-			articles: data.data.articles,
-			headlines: data.data.headlines,
-			headlinesAndArticles: data.data.headlinesAndArticles,
-		});
+		this.setState(
+			{
+				articles: data.data.articles,
+				headlines: data.data.headlines,
+				headlinesAndArticles: data.data.headlinesAndArticles,
+			},
+			() => console.log(this.state)
+		);
 
 		//also update the date with the appropriate one
 		let curDate = this.props.match.params.date.split("-");
@@ -91,7 +94,7 @@ class DateContent extends Component {
 					handleModeChange={(e) => this.handleModeChange(e)}
 					handleSourceChange={(e) => this.handleSourceChange(e)}
 				/>
-				<Timeline align="alternate">
+				<Timeline align="left">
 					<TimelineItems items={items} />
 				</Timeline>
 			</>

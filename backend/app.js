@@ -101,13 +101,16 @@ app.get("/content/:dateString", async (req, res) => {
 		let articlesLength = articles.length,
 			headlinesLength = headlines.length;
 
-		for (let i = 0, j = 0; i < articlesLength || j < headlinesLength; i++, j++) {
+		//make a merged array of headlines and articles sorted by date
+		let i = 0,
+			j = 0;
+		while (i < articlesLength || j < headlinesLength) {
 			if (i >= articlesLength) {
 				headlines[j].type = "headlines";
-				headlinesAndArticles.push(headlines[j]);
+				headlinesAndArticles.push(headlines[j++]);
 			} else if (j >= headlinesLength) {
 				articles[i].type = "article";
-				headlinesAndArticles.push(articles[i]);
+				headlinesAndArticles.push(articles[i++]);
 			} else {
 				let art = articles[i],
 					hdl = headlines[j];
@@ -117,10 +120,10 @@ app.get("/content/:dateString", async (req, res) => {
 
 				if (new Date(art.timestamp) < new Date(hdl.timestamp)) {
 					headlinesAndArticles.push(art);
-					headlinesAndArticles.push(hdl);
+					i++;
 				} else {
 					headlinesAndArticles.push(hdl);
-					headlinesAndArticles.push(art);
+					j++;
 				}
 			}
 		}
