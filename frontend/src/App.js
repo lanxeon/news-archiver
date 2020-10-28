@@ -39,11 +39,14 @@ class App extends Component {
 	};
 
 	dateAndRouteChangeHandler = (date, inRoute = true) => {
-		console.log(new Date(date));
 		this.setState({
 			inRoute: inRoute,
 			date: date,
 		});
+	};
+
+	componentDidUpdate = () => {
+		console.log(this.state.date);
 	};
 
 	render() {

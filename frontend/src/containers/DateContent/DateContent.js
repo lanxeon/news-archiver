@@ -16,9 +16,6 @@ class DateContent extends Component {
 		headlines: [],
 		headlinesAndArticles: [],
 
-		// mode: "headlinesAndArticles",
-		// source: "both",
-
 		sources: {
 			fox: true,
 			cnn: true,
@@ -31,7 +28,6 @@ class DateContent extends Component {
 
 	componentDidMount = async () => {
 		let data = await Axios.get(`http://localhost:3001/content/${this.props.match.params.date}`);
-		console.log(data.data);
 
 		this.setState({
 			articles: data.data.articles,

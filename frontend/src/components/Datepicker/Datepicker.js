@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import classes from "./Datepicker.module.css";
 
 //datepicker, themes and HOC for date provider
@@ -9,10 +10,13 @@ import { ThemeProvider } from "@material-ui/styles";
 import { createMuiTheme } from "@material-ui/core";
 import { cyan, pink, lightBlue } from "@material-ui/core/colors";
 
-import GlobalContext from "../../Context/GlobalContext";
-import { useHistory } from "react-router-dom";
-
+//moment js library
 import moment from "moment";
+
+//context
+import GlobalContext from "../../Context/GlobalContext";
+
+import Buttons from "./ButtonSet/ButtonSet";
 
 //custom theme for datepicker. Overridden in component using
 const overrides = {
@@ -57,7 +61,7 @@ const Datepicker = (props) => {
 
 	useEffect(() => {
 		const { theme, date } = globalContext;
-		console.log(globalContext);
+		// console.log(globalContext);
 
 		overrides["MuiPickersToolbar"]["toolbar"]["backgroundColor"] =
 			theme === "dark" ? "#393e46" : cyan["600"];
@@ -66,11 +70,18 @@ const Datepicker = (props) => {
 		setMaterialTheme(createMuiTheme({ overrides }));
 	}, [globalContext]);
 
-	const redirectToDate = (date) => {
-		globalContext.setRouteAndDate(date);
-		let routeDate = moment(date).format("DD-MM-YYYY");
-		console.log(moment(date).format("DD-MM-YYYY"));
+	const redirectToDate = (d = new Date()) => {
+		let dateToSet;
+		if (props.variant === "static") dateToSet = date;
+		else dateToSet = d;
+		globalContext.setRouteAndDate(dateToSet);
+		let routeDate = moment(dateToSet).format("DD-MM-YYYY");
+		// console.log(moment(date).format("DD-MM-YYYY"));
 		history.push(`${routeDate}`);
+	};
+
+	const staticPickerDateChangeHandler = (d) => {
+		setDate(d);
 	};
 
 	return (
@@ -80,15 +91,16 @@ const Datepicker = (props) => {
 			<div className={classes[props.className]}>
 				<ThemeProvider theme={materialTheme}>
 					<DatePicker
-						// autoOk
+						minDate={new Date(2020, 9, 1)}
 						orientation="portrait"
 						variant={props.variant}
 						openTo="date"
 						value={date}
-						onChange={redirectToDate}
+						onChange={props.variant !== "static" ? redirectToDate : staticPickerDateChangeHandler}
 						disableFuture
 					/>
 				</ThemeProvider>
+				{props.variant === "static" ? <Buttons confirmDate={redirectToDate} /> : null}
 			</div>
 		</MuiPickersUtilsProvider>
 	);

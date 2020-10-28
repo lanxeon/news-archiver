@@ -1,0 +1,12 @@
+.ButtonContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+
+	padding-bottom: 0.5rem;
+	background-color: #fff;
+}
+
+.ButtonContainer button {
+	margin-right: 1rem;
+}
