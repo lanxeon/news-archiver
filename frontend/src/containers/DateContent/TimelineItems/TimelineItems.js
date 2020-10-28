@@ -5,6 +5,7 @@ import { TimelineItem, TimelineContent, TimelineOppositeContent } from "@materia
 
 import TimelineTime from "./TimelineTime/TimelineTime";
 import TimelinePoint from "./TimelinePoint/TimelinePoint";
+import AccordionItem from "../../../components/AccordionItem/AccordionItem";
 
 function TimelineItems(props) {
 	return (
@@ -18,7 +19,10 @@ function TimelineItems(props) {
 
 						<TimelinePoint source={item.source} type={item.type} />
 
-						<TimelineContent>{item.headline}</TimelineContent>
+						<TimelineContent>
+							<AccordionItem item={item} />
+							{/* {item.headline} */}
+						</TimelineContent>
 					</TimelineItem>
 				))}
 		</>
