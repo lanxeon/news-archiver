@@ -28,15 +28,12 @@ class DateContent extends Component {
 
 	componentDidMount = async () => {
 		let data = await Axios.get(`http://localhost:3001/content/${this.props.match.params.date}`);
-
-		this.setState(
-			{
-				articles: data.data.articles,
-				headlines: data.data.headlines,
-				headlinesAndArticles: data.data.headlinesAndArticles,
-			},
-			() => console.log(this.state)
-		);
+		console.log(data.data);
+		this.setState({
+			articles: data.data.articles,
+			headlines: data.data.headlines,
+			headlinesAndArticles: data.data.headlinesAndArticles,
+		});
 
 		//also update the date with the appropriate one
 		let curDate = this.props.match.params.date.split("-");
@@ -53,7 +50,7 @@ class DateContent extends Component {
 		let data = await Axios.get(`http://localhost:3001/content/${this.props.match.params.date}`);
 		this.setState({
 			articles: data.data.articles,
-			headlines: data.data.headliners,
+			headlines: data.data.headlines,
 			headlinesAndArticles: data.data.headlinesAndArticles,
 		});
 	};
@@ -61,7 +58,6 @@ class DateContent extends Component {
 	handleSourceChange = (event) => {
 		this.setState({ sources: { ...this.state.sources, [event.target.name]: event.target.checked } });
 	};
-
 	handleModeChange = (event) => {
 		this.setState({ modes: { ...this.state.modes, [event.target.name]: event.target.checked } });
 	};
@@ -74,17 +70,18 @@ class DateContent extends Component {
 				: this.state.modes["articles"]
 				? "articles"
 				: "headlines";
+
 		const source =
 			this.state.sources["fox"] && this.state.sources["cnn"]
 				? "both"
-				: this.state.modes["fox"]
+				: this.state.sources["fox"]
 				? "fox"
 				: "cnn";
 
 		const items =
 			source === "both"
 				? [...this.state[mode]]
-				: [...this.state[mode]].filter((item) => item.source !== source);
+				: [...this.state[mode]].filter((item) => item.source === source);
 
 		return (
 			<>

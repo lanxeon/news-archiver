@@ -19,7 +19,10 @@ function TimelineItems(props) {
 					<TimelineItem key={item._id} className={classes.TimelineItem}>
 						<TimelineOppositeContent className={classes.TimelineOppositeContent}>
 							<Typography variant="body2" color="inherit">
-								{new Date(item.timestamp).toLocaleTimeString()}
+								{new Date(item.timestamp).toLocaleTimeString([], {
+									hour: "2-digit",
+									minute: "2-digit",
+								})}
 							</Typography>
 						</TimelineOppositeContent>
 						<TimelineSeparator>
