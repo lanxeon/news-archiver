@@ -61,7 +61,6 @@ const Datepicker = (props) => {
 
 	useEffect(() => {
 		const { theme, date } = globalContext;
-		// console.log(globalContext);
 
 		overrides["MuiPickersToolbar"]["toolbar"]["backgroundColor"] =
 			theme === "dark" ? "#393e46" : cyan["600"];
@@ -72,11 +71,15 @@ const Datepicker = (props) => {
 
 	const redirectToDate = (d = new Date()) => {
 		let dateToSet;
-		if (props.variant === "static") dateToSet = date;
-		else dateToSet = d;
+		if (props.variant === "static") {
+			dateToSet = date;
+		} else {
+			dateToSet = d;
+		}
+
 		globalContext.setRouteAndDate(dateToSet);
+
 		let routeDate = moment(dateToSet).format("DD-MM-YYYY");
-		// console.log(moment(date).format("DD-MM-YYYY"));
 		history.push(`${routeDate}`);
 	};
 

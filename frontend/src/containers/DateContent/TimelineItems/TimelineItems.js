@@ -1,15 +1,10 @@
 import React from "react";
 import classes from "./TimelineItems.module.css";
 
-import {
-	TimelineItem,
-	TimelineSeparator,
-	TimelineConnector,
-	TimelineContent,
-	TimelineDot,
-	TimelineOppositeContent,
-} from "@material-ui/lab";
-import Typography from "@material-ui/core/Typography";
+import { TimelineItem, TimelineContent, TimelineOppositeContent } from "@material-ui/lab";
+
+import TimelineTime from "./TimelineTime/TimelineTime";
+import TimelinePoint from "./TimelinePoint/TimelinePoint";
 
 function TimelineItems(props) {
 	return (
@@ -18,20 +13,11 @@ function TimelineItems(props) {
 				props.items.map((item) => (
 					<TimelineItem key={item._id} className={classes.TimelineItem}>
 						<TimelineOppositeContent className={classes.TimelineOppositeContent}>
-							<Typography variant="body2" color="inherit">
-								{new Date(item.timestamp).toLocaleTimeString([], {
-									hour: "2-digit",
-									minute: "2-digit",
-								})}
-							</Typography>
+							<TimelineTime timestamp={item.timestamp} />
 						</TimelineOppositeContent>
-						<TimelineSeparator>
-							<TimelineDot
-								variant={item.type === "article" ? "outlined" : "default"}
-								color={item.source === "fox" ? "primary" : "secondary"}
-							/>
-							<TimelineConnector />
-						</TimelineSeparator>
+
+						<TimelinePoint source={item.source} type={item.type} />
+
 						<TimelineContent>{item.headline}</TimelineContent>
 					</TimelineItem>
 				))}
