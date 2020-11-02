@@ -7,11 +7,18 @@
 	color: var(--text-color) !important;
 }
 
+.AccordionContent {
+	display: flex !important;
+	flex-direction: column !important;
+	flex-grow: 0.2;
+}
+
 .imgContainer {
 	width: 100%;
 	position: relative;
 	display: block;
-	height: 600px;
+	/* height: 600px; */
+	padding-top: 100%;
 	overflow: auto;
 
 	object-fit: cover;
@@ -22,4 +29,20 @@
 	top: 0;
 	left: 0;
 	width: 100%;
+}
+
+.heading {
+	line-height: 1.5;
+	font-weight: 600;
+}
+
+.authors {
+	width: 100%;
+	text-transform: capitalize;
+	text-align: right;
+	display: block;
+}
+.authors span {
+	font-weight: 500;
+	font-style: italic;
 }
